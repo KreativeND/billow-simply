@@ -8,9 +8,9 @@ import {
   updateBill, 
   deleteBill,
   searchBills,
-  uploadPDF,
-  generateAndDownloadPDF
+  uploadPDF
 } from '@/lib/supabase';
+import { generateAndDownloadPDF } from '@/lib/pdfGenerator';
 import Header from '@/components/Header';
 import SearchBar from '@/components/SearchBar';
 import BillList from '@/components/BillList';

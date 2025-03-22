@@ -1,23 +1,23 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash, FileEdit, Download, EyeIcon, XIcon } from 'lucide-react';
+import { Trash, FileEdit, Download, EyeIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Bill } from '@/lib/supabase';
 import QRCode from 'react-qr-code';
 import { generateAndDownloadPDF } from '@/lib/pdfGenerator';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface BillCardProps {
   bill: Bill;
   onEdit: (bill: Bill) => void;
   onDelete: (bill: Bill) => void;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className }) => {
+const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className, style }) => {
   const { toast } = useToast();
   const [isQROpen, setIsQROpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -55,6 +55,7 @@ const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className }
         className,
         isHovered && "ring-1 ring-primary/10"
       )}
+      style={style}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
