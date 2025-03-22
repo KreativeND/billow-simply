@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash, FileEdit, Download, EyeIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Bill } from '@/lib/supabase';
+import { Bill, formatCurrency } from '@/lib/supabase';
 import QRCode from 'react-qr-code';
 import { generateAndDownloadPDF } from '@/lib/pdfGenerator';
 import { useToast } from '@/hooks/use-toast';
@@ -41,7 +42,7 @@ const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className, 
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('en-IN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -86,7 +87,7 @@ const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className, 
               </div>
               <div className="flex items-center">
                 <span className="text-sm text-muted-foreground mr-1">Total:</span>
-                <span className="font-medium">${bill.total_amount.toFixed(2)}</span>
+                <span className="font-medium">{formatCurrency(bill.total_amount)}</span>
               </div>
             </div>
           </div>
@@ -97,7 +98,7 @@ const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className, 
         <div className="text-xs text-muted-foreground">
           <span>Qty: {bill.quantity}</span>
           <span className="mx-2">•</span>
-          <span>Price: ${bill.price_per_piece.toFixed(2)}/piece</span>
+          <span>Price: {formatCurrency(bill.price_per_piece)}/piece</span>
         </div>
         
         <div className="flex items-center gap-2">

@@ -1,7 +1,7 @@
 
 import jsPDF from 'jspdf';
 import { toPng } from 'html-to-image';
-import { Bill } from './supabase';
+import { Bill, formatCurrency } from './supabase';
 
 export async function generatePDF(bill: Bill, logoUrl?: string) {
   // Create a new PDF document
@@ -21,13 +21,13 @@ export async function generatePDF(bill: Bill, logoUrl?: string) {
   pdf.setFont('helvetica', 'normal');
   pdf.text('Logo Printing Company', 20, 40);
   pdf.setFontSize(10);
-  pdf.text('123 Print Street, Design City', 20, 45);
-  pdf.text('contact@logoprinting.com | +1 234 567 8900', 20, 50);
+  pdf.text('123 Print Street, Design City, India', 20, 45);
+  pdf.text('contact@logoprinting.com | +91 9876543210', 20, 50);
   
   // Add invoice info
   pdf.setFontSize(10);
   pdf.text(`Invoice Number: ${bill.id.substring(0, 8)}`, 140, 40);
-  pdf.text(`Date: ${new Date(bill.created_at).toLocaleDateString()}`, 140, 45);
+  pdf.text(`Date: ${new Date(bill.created_at).toLocaleDateString('en-IN')}`, 140, 45);
   
   // Add customer info
   pdf.setFontSize(12);
@@ -50,8 +50,8 @@ export async function generatePDF(bill: Bill, logoUrl?: string) {
   pdf.setFont('helvetica', 'normal');
   pdf.text(bill.print_name, 25, 96);
   pdf.text(bill.quantity.toString(), 90, 96);
-  pdf.text(`$${bill.price_per_piece.toFixed(2)}`, 120, 96);
-  pdf.text(`$${bill.total_amount.toFixed(2)}`, 160, 96);
+  pdf.text(`₹${bill.price_per_piece.toFixed(0)}`, 120, 96);
+  pdf.text(`₹${bill.total_amount.toFixed(0)}`, 160, 96);
   
   // Add line
   pdf.setDrawColor(220, 220, 220);
@@ -60,7 +60,7 @@ export async function generatePDF(bill: Bill, logoUrl?: string) {
   // Add total
   pdf.setFont('helvetica', 'bold');
   pdf.text('Total Amount:', 130, 115);
-  pdf.text(`$${bill.total_amount.toFixed(2)}`, 160, 115);
+  pdf.text(`₹${bill.total_amount.toFixed(0)}`, 160, 115);
   
   // Add logo if available
   if (logoUrl) {

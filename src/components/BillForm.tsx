@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Bill, uploadLogo } from '@/lib/supabase';
+import { Bill, uploadLogo, formatCurrency } from '@/lib/supabase';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -30,8 +30,8 @@ const formSchema = z.object({
     .positive({
       message: "Price per piece must be a positive number",
     })
-    .multipleOf(0.01, {
-      message: "Price can have up to 2 decimal places",
+    .multipleOf(1, {
+      message: "Price must be a whole number for INR",
     }),
 });
 
@@ -74,7 +74,7 @@ const BillForm: React.FC<BillFormProps> = ({
     const qty = Number(quantity) || 0;
     const price = Number(pricePerPiece) || 0;
     const total = qty * price;
-    setTotalAmount(parseFloat(total.toFixed(2)));
+    setTotalAmount(total);
   }, [quantity, pricePerPiece]);
 
   const handleFileUpload = (file: File) => {
@@ -202,12 +202,12 @@ const BillForm: React.FC<BillFormProps> = ({
                 name="price_per_piece"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price Per Piece ($)</FormLabel>
+                    <FormLabel>Price Per Piece (₹)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        step="0.01"
-                        min="0.01"
+                        step="1"
+                        min="1"
                         placeholder="Enter price per piece"
                         {...field}
                       />
@@ -222,7 +222,7 @@ const BillForm: React.FC<BillFormProps> = ({
             <div className="bg-secondary p-4 rounded-lg">
               <div className="flex justify-between items-center">
                 <FormLabel className="text-base">Total Amount</FormLabel>
-                <span className="text-2xl font-medium">${totalAmount.toFixed(2)}</span>
+                <span className="text-2xl font-medium">{formatCurrency(totalAmount)}</span>
               </div>
             </div>
           </CardContent>

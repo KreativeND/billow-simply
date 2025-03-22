@@ -7,16 +7,16 @@ const supabaseAnonKey = 'your-supabase-anon-key';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Mock data for bills
-const mockBills: Bill[] = [
+// Mock data for bills - using a let instead of const for persistence
+let mockBills: Bill[] = [
   {
     id: '1',
     logo_url: 'https://via.placeholder.com/150',
     customer_name: 'Acme Corp',
     print_name: 'Logo Design 1',
     quantity: 100,
-    price_per_piece: 2.5,
-    total_amount: 250,
+    price_per_piece: 250,
+    total_amount: 25000,
     pdf_url: 'https://example.com/sample.pdf',
     created_at: new Date(2023, 5, 15).toISOString(),
   },
@@ -26,8 +26,8 @@ const mockBills: Bill[] = [
     customer_name: 'TechStart',
     print_name: 'Startup Logo',
     quantity: 50,
-    price_per_piece: 3.0,
-    total_amount: 150,
+    price_per_piece: 300,
+    total_amount: 15000,
     pdf_url: 'https://example.com/sample2.pdf',
     created_at: new Date(2023, 6, 20).toISOString(),
   },
@@ -36,8 +36,8 @@ const mockBills: Bill[] = [
     customer_name: 'Green Leaf',
     print_name: 'Eco Friendly Design',
     quantity: 200,
-    price_per_piece: 1.75,
-    total_amount: 350,
+    price_per_piece: 175,
+    total_amount: 35000,
     created_at: new Date(2023, 7, 5).toISOString(),
   }
 ];
@@ -55,11 +55,20 @@ export type Bill = {
   created_at: string;
 };
 
+// Currency format helper
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
 // Function to fetch all bills
 export async function fetchBills() {
   // Return mock data instead of fetching from Supabase
   console.log('Fetching mock bills');
-  return mockBills;
+  return [...mockBills]; // Return a copy to prevent accidental mutation
 }
 
 // Function to fetch a single bill by ID
@@ -70,7 +79,7 @@ export async function fetchBillById(id: string) {
     throw new Error('Bill not found');
   }
   
-  return bill;
+  return {...bill}; // Return a copy to prevent accidental mutation
 }
 
 // Function to create a new bill
@@ -84,7 +93,7 @@ export async function createBill(bill: Omit<Bill, 'id' | 'created_at'>) {
   console.log('Creating new bill:', newBill);
   mockBills.unshift(newBill);
   
-  return newBill;
+  return {...newBill}; // Return a copy to prevent accidental mutation
 }
 
 // Function to update an existing bill
@@ -100,7 +109,8 @@ export async function updateBill(id: string, bill: Partial<Bill>) {
     ...bill
   };
   
-  return mockBills[index];
+  console.log('Updated bill:', mockBills[index]);
+  return {...mockBills[index]}; // Return a copy to prevent accidental mutation
 }
 
 // Function to delete a bill
@@ -111,6 +121,7 @@ export async function deleteBill(id: string) {
     throw new Error('Bill not found');
   }
   
+  console.log('Deleting bill id:', id);
   mockBills.splice(index, 1);
   
   return true;
@@ -137,5 +148,5 @@ export async function searchBills(searchTerm: string) {
     bill => 
       bill.customer_name.toLowerCase().includes(term) || 
       bill.print_name.toLowerCase().includes(term)
-  );
+  ).map(bill => ({...bill})); // Return copies to prevent accidental mutation
 }
