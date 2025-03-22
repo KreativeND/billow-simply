@@ -7,6 +7,41 @@ const supabaseAnonKey = 'your-supabase-anon-key';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Mock data for bills
+const mockBills: Bill[] = [
+  {
+    id: '1',
+    logo_url: 'https://via.placeholder.com/150',
+    customer_name: 'Acme Corp',
+    print_name: 'Logo Design 1',
+    quantity: 100,
+    price_per_piece: 2.5,
+    total_amount: 250,
+    pdf_url: 'https://example.com/sample.pdf',
+    created_at: new Date(2023, 5, 15).toISOString(),
+  },
+  {
+    id: '2',
+    logo_url: 'https://via.placeholder.com/150',
+    customer_name: 'TechStart',
+    print_name: 'Startup Logo',
+    quantity: 50,
+    price_per_piece: 3.0,
+    total_amount: 150,
+    pdf_url: 'https://example.com/sample2.pdf',
+    created_at: new Date(2023, 6, 20).toISOString(),
+  },
+  {
+    id: '3',
+    customer_name: 'Green Leaf',
+    print_name: 'Eco Friendly Design',
+    quantity: 200,
+    price_per_piece: 1.75,
+    total_amount: 350,
+    created_at: new Date(2023, 7, 5).toISOString(),
+  }
+];
+
 // Type definitions for our bill
 export type Bill = {
   id: string;
@@ -22,143 +57,85 @@ export type Bill = {
 
 // Function to fetch all bills
 export async function fetchBills() {
-  const { data, error } = await supabase
-    .from('bills')
-    .select('*')
-    .order('created_at', { ascending: false });
-  
-  if (error) {
-    console.error('Error fetching bills:', error);
-    throw error;
-  }
-  
-  return data as Bill[];
+  // Return mock data instead of fetching from Supabase
+  console.log('Fetching mock bills');
+  return mockBills;
 }
 
 // Function to fetch a single bill by ID
 export async function fetchBillById(id: string) {
-  const { data, error } = await supabase
-    .from('bills')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const bill = mockBills.find(b => b.id === id);
   
-  if (error) {
-    console.error('Error fetching bill:', error);
-    throw error;
+  if (!bill) {
+    throw new Error('Bill not found');
   }
   
-  return data as Bill;
+  return bill;
 }
 
 // Function to create a new bill
 export async function createBill(bill: Omit<Bill, 'id' | 'created_at'>) {
-  const { data, error } = await supabase
-    .from('bills')
-    .insert([{
-      ...bill,
-      created_at: new Date().toISOString(),
-    }])
-    .select()
-    .single();
+  const newBill: Bill = {
+    ...bill,
+    id: Math.random().toString(36).substring(2, 11),
+    created_at: new Date().toISOString(),
+  };
   
-  if (error) {
-    console.error('Error creating bill:', error);
-    throw error;
-  }
+  console.log('Creating new bill:', newBill);
+  mockBills.unshift(newBill);
   
-  return data as Bill;
+  return newBill;
 }
 
 // Function to update an existing bill
 export async function updateBill(id: string, bill: Partial<Bill>) {
-  const { data, error } = await supabase
-    .from('bills')
-    .update(bill)
-    .eq('id', id)
-    .select()
-    .single();
+  const index = mockBills.findIndex(b => b.id === id);
   
-  if (error) {
-    console.error('Error updating bill:', error);
-    throw error;
+  if (index === -1) {
+    throw new Error('Bill not found');
   }
   
-  return data as Bill;
+  mockBills[index] = {
+    ...mockBills[index],
+    ...bill
+  };
+  
+  return mockBills[index];
 }
 
 // Function to delete a bill
 export async function deleteBill(id: string) {
-  const { error } = await supabase
-    .from('bills')
-    .delete()
-    .eq('id', id);
+  const index = mockBills.findIndex(b => b.id === id);
   
-  if (error) {
-    console.error('Error deleting bill:', error);
-    throw error;
+  if (index === -1) {
+    throw new Error('Bill not found');
   }
+  
+  mockBills.splice(index, 1);
   
   return true;
 }
 
 // Function to upload a logo image
 export async function uploadLogo(file: File, fileName: string) {
-  const { data, error } = await supabase.storage
-    .from('logos')
-    .upload(`${fileName}-${Date.now()}`, file, {
-      cacheControl: '3600',
-      upsert: false
-    });
-  
-  if (error) {
-    console.error('Error uploading logo:', error);
-    throw error;
-  }
-  
-  // Get the public URL for the uploaded file
-  const { data: publicURL } = supabase.storage
-    .from('logos')
-    .getPublicUrl(data.path);
-  
-  return publicURL.publicUrl;
+  console.log('Mock uploading logo:', fileName);
+  // Create a mock URL - in a real app this would be a Supabase storage URL
+  return URL.createObjectURL(file);
 }
 
 // Function to upload a PDF
 export async function uploadPDF(pdfBlob: Blob, fileName: string) {
-  const { data, error } = await supabase.storage
-    .from('pdfs')
-    .upload(`${fileName}-${Date.now()}.pdf`, pdfBlob, {
-      contentType: 'application/pdf',
-      cacheControl: '3600',
-      upsert: false
-    });
-  
-  if (error) {
-    console.error('Error uploading PDF:', error);
-    throw error;
-  }
-  
-  // Get the public URL for the uploaded file
-  const { data: publicURL } = supabase.storage
-    .from('pdfs')
-    .getPublicUrl(data.path);
-  
-  return publicURL.publicUrl;
+  console.log('Mock uploading PDF:', fileName);
+  // Create a mock URL - in a real app this would be a Supabase storage URL
+  return URL.createObjectURL(pdfBlob);
 }
 
 // Function to search bills
 export async function searchBills(searchTerm: string) {
-  const { data, error } = await supabase
-    .from('bills')
-    .select('*')
-    .or(`customer_name.ilike.%${searchTerm}%,print_name.ilike.%${searchTerm}%`)
-    .order('created_at', { ascending: false });
-  
-  if (error) {
-    console.error('Error searching bills:', error);
-    throw error;
-  }
-  
-  return data as Bill[];
+  const term = searchTerm.toLowerCase();
+  return mockBills.filter(
+    bill => 
+      bill.customer_name.toLowerCase().includes(term) || 
+      bill.print_name.toLowerCase().includes(term)
+  );
 }

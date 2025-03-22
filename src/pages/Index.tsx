@@ -48,28 +48,37 @@ const BillingApp = () => {
   // Mutations
   const createMutation = useMutation({
     mutationFn: async (newBill: Partial<Bill>) => {
-      const createdBill = await createBill(newBill as Omit<Bill, 'id' | 'created_at'>);
-      
-      // Generate PDF and upload to Supabase
-      if (createdBill) {
-        try {
-          const pdfBlob = await generateAndDownloadPDF(createdBill, createdBill.logo_url);
-          const pdfUrl = await uploadPDF(pdfBlob, `bill-${createdBill.id}`);
-          
-          // Update the bill with the PDF URL
-          await updateBill(createdBill.id, { pdf_url: pdfUrl });
-          return { ...createdBill, pdf_url: pdfUrl };
-        } catch (error) {
-          console.error("Error generating/uploading PDF:", error);
-          return createdBill;
+      try {
+        const createdBill = await createBill(newBill as Omit<Bill, 'id' | 'created_at'>);
+        
+        // Generate PDF and upload to Supabase
+        if (createdBill) {
+          try {
+            const pdfBlob = await generateAndDownloadPDF(createdBill, createdBill.logo_url);
+            const pdfUrl = await uploadPDF(pdfBlob, `bill-${createdBill.id}`);
+            
+            // Update the bill with the PDF URL
+            await updateBill(createdBill.id, { pdf_url: pdfUrl });
+            return { ...createdBill, pdf_url: pdfUrl };
+          } catch (error) {
+            console.error("Error generating/uploading PDF:", error);
+            return createdBill;
+          }
         }
+        
+        return createdBill;
+      } catch (error) {
+        console.error("Error in createMutation:", error);
+        throw error;
       }
-      
-      return createdBill;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bills'] });
       setIsFormOpen(false);
+      toast({
+        title: "Bill Created",
+        description: "The bill has been successfully created.",
+      });
     },
     onError: (error) => {
       console.error("Error creating bill:", error);

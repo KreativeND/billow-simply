@@ -61,7 +61,6 @@ const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className, 
     >
       <CardContent className="p-5">
         <div className="grid grid-cols-12 gap-4">
-          {/* Logo or Placeholder */}
           <div className="col-span-3 bg-secondary rounded-md overflow-hidden h-20 flex items-center justify-center">
             {bill.logo_url ? (
               <img 
@@ -74,7 +73,6 @@ const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className, 
             )}
           </div>
           
-          {/* Bill Details */}
           <div className="col-span-9 flex flex-col justify-between">
             <div className="space-y-1">
               <h3 className="font-medium text-foreground truncate">{bill.print_name}</h3>
@@ -141,7 +139,6 @@ const BillCard: React.FC<BillCardProps> = ({ bill, onEdit, onDelete, className, 
         </div>
       </CardFooter>
       
-      {/* QR Code Dialog */}
       <Dialog open={isQROpen} onOpenChange={setIsQROpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
