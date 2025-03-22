@@ -7,8 +7,8 @@ const supabaseAnonKey = 'your-supabase-anon-key';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Mock data for bills - using a let instead of const for persistence
-let mockBills: Bill[] = [
+// Initial mock data for bills
+const initialMockBills: Bill[] = [
   {
     id: '1',
     logo_url: 'https://via.placeholder.com/150',
@@ -42,6 +42,29 @@ let mockBills: Bill[] = [
   }
 ];
 
+// Get mock data from localStorage or use initial data
+const getStoredMockBills = (): Bill[] => {
+  try {
+    const storedBills = localStorage.getItem('mockBills');
+    return storedBills ? JSON.parse(storedBills) : initialMockBills;
+  } catch (error) {
+    console.error('Error retrieving bills from localStorage:', error);
+    return initialMockBills;
+  }
+};
+
+// Save mock data to localStorage
+const saveStoredMockBills = (bills: Bill[]): void => {
+  try {
+    localStorage.setItem('mockBills', JSON.stringify(bills));
+  } catch (error) {
+    console.error('Error saving bills to localStorage:', error);
+  }
+};
+
+// Get bills from storage on initial load
+let mockBills: Bill[] = getStoredMockBills();
+
 // Type definitions for our bill
 export type Bill = {
   id: string;
@@ -66,14 +89,15 @@ export const formatCurrency = (amount: number): string => {
 
 // Function to fetch all bills
 export async function fetchBills() {
-  // Return mock data instead of fetching from Supabase
+  // Return mock data
   console.log('Fetching mock bills');
-  return [...mockBills]; // Return a copy to prevent accidental mutation
+  return [...getStoredMockBills()]; // Get fresh data from storage
 }
 
 // Function to fetch a single bill by ID
 export async function fetchBillById(id: string) {
-  const bill = mockBills.find(b => b.id === id);
+  const bills = getStoredMockBills();
+  const bill = bills.find(b => b.id === id);
   
   if (!bill) {
     throw new Error('Bill not found');
@@ -84,6 +108,8 @@ export async function fetchBillById(id: string) {
 
 // Function to create a new bill
 export async function createBill(bill: Omit<Bill, 'id' | 'created_at'>) {
+  const bills = getStoredMockBills();
+  
   const newBill: Bill = {
     ...bill,
     id: Math.random().toString(36).substring(2, 11),
@@ -91,38 +117,53 @@ export async function createBill(bill: Omit<Bill, 'id' | 'created_at'>) {
   };
   
   console.log('Creating new bill:', newBill);
-  mockBills.unshift(newBill);
+  bills.unshift(newBill);
+  
+  // Update both in-memory and localStorage
+  mockBills = bills;
+  saveStoredMockBills(bills);
   
   return {...newBill}; // Return a copy to prevent accidental mutation
 }
 
 // Function to update an existing bill
 export async function updateBill(id: string, bill: Partial<Bill>) {
-  const index = mockBills.findIndex(b => b.id === id);
+  const bills = getStoredMockBills();
+  const index = bills.findIndex(b => b.id === id);
   
   if (index === -1) {
     throw new Error('Bill not found');
   }
   
-  mockBills[index] = {
-    ...mockBills[index],
+  bills[index] = {
+    ...bills[index],
     ...bill
   };
   
-  console.log('Updated bill:', mockBills[index]);
-  return {...mockBills[index]}; // Return a copy to prevent accidental mutation
+  console.log('Updated bill:', bills[index]);
+  
+  // Update both in-memory and localStorage
+  mockBills = bills;
+  saveStoredMockBills(bills);
+  
+  return {...bills[index]}; // Return a copy to prevent accidental mutation
 }
 
 // Function to delete a bill
 export async function deleteBill(id: string) {
-  const index = mockBills.findIndex(b => b.id === id);
+  const bills = getStoredMockBills();
+  const index = bills.findIndex(b => b.id === id);
   
   if (index === -1) {
     throw new Error('Bill not found');
   }
   
   console.log('Deleting bill id:', id);
-  mockBills.splice(index, 1);
+  bills.splice(index, 1);
+  
+  // Update both in-memory and localStorage
+  mockBills = bills;
+  saveStoredMockBills(bills);
   
   return true;
 }
@@ -143,8 +184,10 @@ export async function uploadPDF(pdfBlob: Blob, fileName: string) {
 
 // Function to search bills
 export async function searchBills(searchTerm: string) {
+  const bills = getStoredMockBills();
   const term = searchTerm.toLowerCase();
-  return mockBills.filter(
+  
+  return bills.filter(
     bill => 
       bill.customer_name.toLowerCase().includes(term) || 
       bill.print_name.toLowerCase().includes(term)
