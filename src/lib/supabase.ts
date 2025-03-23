@@ -56,10 +56,11 @@ export async function fetchBillById(id: string) {
 }
 
 // Function to create a new bill
-export async function createBill(bill: Omit<Bill, 'id' | 'created_at'>) {
+export async function createBill(bill: Omit<Bill, 'id' | 'created_at' | 'total_amount'>) {
   const newBill = {
     ...bill,
     created_at: new Date().toISOString(),
+    // Remove total_amount from the bill object as it's a generated column
   };
   
   console.log('Creating new bill:', newBill);
@@ -79,7 +80,7 @@ export async function createBill(bill: Omit<Bill, 'id' | 'created_at'>) {
 }
 
 // Function to update an existing bill
-export async function updateBill(id: string, bill: Partial<Bill>) {
+export async function updateBill(id: string, bill: Partial<Omit<Bill, 'total_amount'>>) {
   console.log('Updating bill:', id, bill);
   
   const { data, error } = await supabase

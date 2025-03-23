@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -18,7 +17,7 @@ import BillForm from '@/components/BillForm';
 import DeleteConfirmation from '@/components/DeleteConfirmation';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCcw } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 
 const BillingApp = () => {
@@ -47,9 +46,9 @@ const BillingApp = () => {
   
   // Mutations
   const createMutation = useMutation({
-    mutationFn: async (newBill: Partial<Bill>) => {
+    mutationFn: async (newBill: Partial<Omit<Bill, 'total_amount'>>) => {
       try {
-        const createdBill = await createBill(newBill as Omit<Bill, 'id' | 'created_at'>);
+        const createdBill = await createBill(newBill as Omit<Bill, 'id' | 'created_at' | 'total_amount'>);
         
         // Generate PDF and upload to Supabase
         if (createdBill) {
@@ -91,7 +90,7 @@ const BillingApp = () => {
   });
   
   const updateMutation = useMutation({
-    mutationFn: async ({id, bill}: {id: string, bill: Partial<Bill>}) => {
+    mutationFn: async ({id, bill}: {id: string, bill: Partial<Omit<Bill, 'total_amount'>>}) => {
       const updatedBill = await updateBill(id, bill);
       
       // Regenerate PDF if needed
@@ -145,7 +144,6 @@ const BillingApp = () => {
     }
   });
   
-  // Handlers
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
@@ -185,7 +183,6 @@ const BillingApp = () => {
     refetch();
   };
   
-  // Display error if any
   useEffect(() => {
     if (error) {
       console.error("Error fetching bills:", error);
@@ -202,7 +199,6 @@ const BillingApp = () => {
       <Header />
       
       <main className="flex-1 container py-6 px-4 md:px-6 space-y-8 max-w-7xl">
-        {/* Actions Bar */}
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <h1 className="text-2xl font-medium sm:hidden">Bills</h1>
           
@@ -234,7 +230,6 @@ const BillingApp = () => {
           </div>
         </div>
         
-        {/* Bills List */}
         <BillList
           bills={bills || []}
           isLoading={isLoading}
@@ -243,9 +238,11 @@ const BillingApp = () => {
         />
       </main>
       
-      {/* Bill Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-2xl p-0">
+          <DialogTitle className="sr-only">
+            {selectedBill ? "Edit Bill" : "Create New Bill"}
+          </DialogTitle>
           <BillForm
             onSubmit={handleFormSubmit}
             initialData={selectedBill || undefined}
@@ -254,7 +251,6 @@ const BillingApp = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Delete Confirmation Dialog */}
       <DeleteConfirmation
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}

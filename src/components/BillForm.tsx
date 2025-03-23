@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -98,11 +97,10 @@ const BillForm: React.FC<BillFormProps> = ({
         logoUrl = await uploadLogo(logoFile, `${data.customer_name}-${data.print_name}`);
       }
 
-      // Submit the bill with all data
+      // Submit the bill with required data, but WITHOUT total_amount
       await onSubmit({
         ...data,
         logo_url: logoUrl,
-        total_amount: totalAmount,
       });
 
       toast({
