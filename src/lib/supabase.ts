@@ -12,6 +12,7 @@ export type Bill = {
   total_amount: number;
   pdf_url?: string;
   created_at: string;
+  user_id?: string; // Updated to be optional
 };
 
 // Currency format helper
@@ -60,7 +61,7 @@ export async function createBill(bill: Omit<Bill, 'id' | 'created_at' | 'total_a
   const newBill = {
     ...bill,
     created_at: new Date().toISOString(),
-    // Remove total_amount from the bill object as it's a generated column
+    // We don't need user_id field anymore as it's now optional in the database
   };
   
   console.log('Creating new bill:', newBill);

@@ -20,7 +20,7 @@ export type Database = {
           print_name: string
           quantity: number
           total_amount: number | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -32,7 +32,7 @@ export type Database = {
           print_name: string
           quantity: number
           total_amount?: number | null
-          user_id?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -44,7 +44,7 @@ export type Database = {
           print_name?: string
           quantity?: number
           total_amount?: number | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
