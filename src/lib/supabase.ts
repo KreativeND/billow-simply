@@ -1,12 +1,5 @@
 
-import { createClient } from '@supabase/supabase-js';
-
-// Use the values from the Supabase integration
-const supabaseUrl = 'https://axvufhfhukfngngmyvbn.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4dnVmaGZodWtmbmduZ215dmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2MTcyODksImV4cCI6MjA1ODE5MzI4OX0.06iyn_DD_xtDib5asPTApMiT4COoDz_yT_TxB5UwXF0';
-
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from '@/integrations/supabase/client';
 
 // Type definitions for our bill
 export type Bill = {
